@@ -7,27 +7,43 @@ public class PlayerController : MonoBehaviour {
     private float xMouse;
     private float yMouse;
 
-    private int speedHash;
-    private int shiftHash;
-    private int screamHash;
+    private string[] parameters = new string[]
+    {
+        "Speed", "Shift", "Scream", "Hit", "Jump"
+    };
 
-    private int idleStateSash;
+    private string[] states = new string[]
+    {
+        "Scream", "Hit", "Jump"
+    };
+
+    private Dictionary<string, int> paramHash = new Dictionary<string, int>();
+    private Dictionary<string, int> stateHashes = new Dictionary<string, int>();
 
     private Animator animator;
     private AudioSource audioSource;
+    private Rigidbody rigidBody;
+
     public AudioClips audioClips;
 
     private void Start()
     {
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
+        rigidBody = GetComponent<Rigidbody>();
+
         audioClips.ResetLastClipIndex();
 
-        speedHash = Animator.StringToHash("Speed");
-        shiftHash = Animator.StringToHash("Shift");
-        screamHash = Animator.StringToHash("Scream");
+        foreach(var param in parameters)
+        {
+            paramHash[param] = Animator.StringToHash(param);
+        }
 
-        idleStateSash = Animator.StringToHash("Base Layer.Idle");
+        foreach(var state in states)
+        {
+            stateHashes[state] = Animator.StringToHash("Base Layer." + state);
+        }
+
     }
 
     private void Update()
@@ -38,13 +54,28 @@ public class PlayerController : MonoBehaviour {
 
 
 
-        animator.SetFloat(speedHash, vertAxis);
-        animator.SetBool(shiftHash, Input.GetKey(KeyCode.LeftShift));
-        if (Input.GetKeyDown(KeyCode.E) && animStateInfo.fullPathHash == idleStateSash)
+        animator.SetFloat(paramHash["Speed"], vertAxis);
+
+
+        animator.SetBool(paramHash["Shift"], Input.GetKey(KeyCode.LeftShift));
+        if (animStateInfo.fullPathHash != stateHashes["Scream"] && animStateInfo.fullPathHash != stateHashes["Hit"]
+            && animStateInfo.fullPathHash != stateHashes["Jump"])
         {
-            PlayClip();
-            animator.SetTrigger(screamHash);
-            audioSource.Play();
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                PlayClip();
+                animator.SetTrigger(paramHash["Scream"]);
+            }
+            else if (Input.GetMouseButtonDown(0))
+            {
+                animator.SetTrigger(paramHash["Hit"]);
+            }
+            else if (Input.GetKeyDown(KeyCode.Space))
+            {
+                animator.SetTrigger(paramHash["Jump"]);
+                rigidBody.AddForce(Vector3.up * 100, ForceMode.Impulse);
+            }
+            
         }
 
     }
