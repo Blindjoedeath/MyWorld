@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d92e1de28a73b144f80fe87256413e56, type: 3}
+  m_Name: LionAudio
+  m_EditorClassIdentifier: 
+  audioClips:
+  - audioClip: {fileID: 8300000, guid: 0a016ebe4d3825847bbd92f1dfc7e947, type: 3}
+    volume: 0.197
+  - audioClip: {fileID: 8300000, guid: ee0ed600136e4aa4baa16e6e353514ad, type: 3}
+    volume: 0.726
+  - audioClip: {fileID: 8300000, guid: 04ad560d62da3c14480f1c76e040302b, type: 3}
+    volume: 0.329
+  - audioClip: {fileID: 8300000, guid: 2d80b27caf7b9b9498c641d076a68a4d, type: 3}
+    volume: 0.36
+  - audioClip: {fileID: 8300000, guid: 3acdda4afbec9cc43a91fc599e266bcd, type: 3}
+    volume: 0.43
+  - audioClip: {fileID: 8300000, guid: ccae9934fe503fe4399c602ce65968a7, type: 3}
+    volume: 0.57
+  - audioClip: {fileID: 8300000, guid: 8ed86f6234153fe439083346b36fcdf4, type: 3}
+    volume: 0.63
