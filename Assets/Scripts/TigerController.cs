@@ -10,6 +10,7 @@ public class TigerController : MonoBehaviour {
     [Range(1, 10)]
     public float runSpeed;
     private float jumpForce = 100;
+    public List<ParticleSystem> particleSystems = new List<ParticleSystem>();
 
     public bool enable;
 
@@ -67,6 +68,7 @@ public class TigerController : MonoBehaviour {
         float mouseHorAxis = Input.GetAxis("Mouse X");
         float mouseVertAxis = Input.GetAxis("Mouse Y");
 
+
         playerCamera.transform.RotateAround(transform.position, Vector3.up, mouseHorAxis);
 
         transform.Rotate(new Vector3(0, horAxis, 0));
@@ -90,6 +92,7 @@ public class TigerController : MonoBehaviour {
             else if (Input.GetMouseButtonDown(0))
             {
                 animator.SetTrigger(paramHash["Hit"]);
+                PlayParticles();
             }
             else if (Input.GetKeyDown(KeyCode.Space))
             {
@@ -124,6 +127,21 @@ public class TigerController : MonoBehaviour {
         RaycastHit hit = new RaycastHit();
         Physics.Raycast(new Ray(collider.bounds.center, -transform.up), out hit, groundDist + 0.2f);
         return hit.collider == terrainCollider;
+    }
+
+
+    private int lastParticlesIndex = 0;
+    private void PlayParticles()
+    {
+        if (lastParticlesIndex == particleSystems.Count)
+        {
+            lastParticlesIndex = 0;
+        }
+        if (!particleSystems[lastParticlesIndex].isPlaying)
+        {
+            particleSystems[lastParticlesIndex].Play();
+            particleSystems[lastParticlesIndex++].Emit(1);
+        }
     }
 }
 
