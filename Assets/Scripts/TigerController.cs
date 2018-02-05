@@ -2,10 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour {
+public class TigerController : MonoBehaviour {
 
-    private float xMouse;
-    private float yMouse;
+    [Range(1, 10)]
+    public float walkSpeed;
+
+    [Range(1, 10)]
+    public float runSpeed;
+    private float jumpForce = 100;
+
+    public bool enable;
 
     private string[] parameters = new string[]
     {
@@ -14,7 +20,7 @@ public class PlayerController : MonoBehaviour {
 
     private string[] states = new string[]
     {
-        "Scream", "Hit", "Jump"
+        "Scream", "Hit", "Jump", "Walk", "Run"
     };
 
     private Dictionary<string, int> paramHash = new Dictionary<string, int>();
@@ -23,6 +29,10 @@ public class PlayerController : MonoBehaviour {
     private Animator animator;
     private AudioSource audioSource;
     private Rigidbody rigidBody;
+    private Camera playerCamera;
+    private Collider terrainCollider;
+    private Collider collider;
+    private float groundDist;
 
     public AudioClips audioClips;
 
@@ -31,7 +41,12 @@ public class PlayerController : MonoBehaviour {
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
         rigidBody = GetComponent<Rigidbody>();
+        playerCamera = GetComponentInChildren<Camera>();
+        terrainCollider = FindObjectOfType<Terrain>().GetComponent<Collider>();
+        collider = GetComponent<Collider>();
 
+
+        groundDist = collider.bounds.extents.y;
         audioClips.ResetLastClipIndex();
 
         foreach(var param in parameters)
@@ -43,21 +58,27 @@ public class PlayerController : MonoBehaviour {
         {
             stateHashes[state] = Animator.StringToHash("Base Layer." + state);
         }
-
     }
 
     private void Update()
     {
         float vertAxis = Input.GetAxis("Vertical");
         float horAxis = Input.GetAxis("Horizontal");
+        float mouseHorAxis = Input.GetAxis("Mouse X");
+        float mouseVertAxis = Input.GetAxis("Mouse Y");
+
+        playerCamera.transform.RotateAround(transform.position, Vector3.up, mouseHorAxis);
+
+        transform.Rotate(new Vector3(0, horAxis, 0));
+
         AnimatorStateInfo animStateInfo = animator.GetCurrentAnimatorStateInfo(0); 
 
 
 
         animator.SetFloat(paramHash["Speed"], vertAxis);
-
-
         animator.SetBool(paramHash["Shift"], Input.GetKey(KeyCode.LeftShift));
+
+
         if (animStateInfo.fullPathHash != stateHashes["Scream"] && animStateInfo.fullPathHash != stateHashes["Hit"]
             && animStateInfo.fullPathHash != stateHashes["Jump"])
         {
@@ -73,11 +94,20 @@ public class PlayerController : MonoBehaviour {
             else if (Input.GetKeyDown(KeyCode.Space))
             {
                 animator.SetTrigger(paramHash["Jump"]);
-                rigidBody.AddForce(Vector3.up * 100, ForceMode.Impulse);
-            }
-            
+                rigidBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            }         
         }
-
+        if (IsGrounded())
+        {
+            if (animStateInfo.fullPathHash == stateHashes["Walk"])
+            {
+                rigidBody.velocity = transform.forward * vertAxis * walkSpeed;
+            }
+            else if (animStateInfo.fullPathHash == stateHashes["Run"])
+            {
+                rigidBody.velocity = transform.forward * vertAxis * runSpeed;
+            }
+        }
     }
 
     private void PlayClip()
@@ -87,6 +117,13 @@ public class PlayerController : MonoBehaviour {
         audioSource.clip = clip.audioClip;
 
         audioSource.Play();
+    }
+
+    private bool IsGrounded()
+    {
+        RaycastHit hit = new RaycastHit();
+        Physics.Raycast(new Ray(collider.bounds.center, -transform.up), out hit, groundDist + 0.2f);
+        return hit.collider == terrainCollider;
     }
 }
 
