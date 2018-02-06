@@ -9,8 +9,7 @@ public class TigerController : MonoBehaviour {
 
     [Range(1, 10)]
     public float runSpeed;
-    private float jumpForce = 100;
-    public List<ParticleSystem> particleSystems = new List<ParticleSystem>();
+    public float jumpForce;
 
     public bool enable;
 
@@ -33,6 +32,9 @@ public class TigerController : MonoBehaviour {
     private Camera playerCamera;
     private Collider terrainCollider;
     private Collider collider;
+    private ParticlesController particlesController;
+    AnimatorStateInfo animStateInfo;
+
     private float groundDist;
 
     public AudioClips audioClips;
@@ -45,7 +47,7 @@ public class TigerController : MonoBehaviour {
         playerCamera = GetComponentInChildren<Camera>();
         terrainCollider = FindObjectOfType<Terrain>().GetComponent<Collider>();
         collider = GetComponent<Collider>();
-
+        particlesController = GetComponentInChildren<ParticlesController>();
 
         groundDist = collider.bounds.extents.y;
         audioClips.ResetLastClipIndex();
@@ -73,7 +75,7 @@ public class TigerController : MonoBehaviour {
 
         transform.Rotate(new Vector3(0, horAxis, 0));
 
-        AnimatorStateInfo animStateInfo = animator.GetCurrentAnimatorStateInfo(0); 
+        animStateInfo = animator.GetCurrentAnimatorStateInfo(0); 
 
 
 
@@ -92,24 +94,27 @@ public class TigerController : MonoBehaviour {
             else if (Input.GetMouseButtonDown(0))
             {
                 animator.SetTrigger(paramHash["Hit"]);
-                PlayParticles();
+                PlayParticles("Hit");
             }
-            else if (Input.GetKeyDown(KeyCode.Space))
+            else if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
             {
                 animator.SetTrigger(paramHash["Jump"]);
                 rigidBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            }         
+            }
         }
+
         if (IsGrounded())
         {
+            Vector3 delta = transform.forward * vertAxis;
             if (animStateInfo.fullPathHash == stateHashes["Walk"])
             {
-                rigidBody.velocity = transform.forward * vertAxis * walkSpeed;
+                delta *= walkSpeed;
             }
             else if (animStateInfo.fullPathHash == stateHashes["Run"])
             {
-                rigidBody.velocity = transform.forward * vertAxis * runSpeed;
+                delta *= runSpeed;
             }
+            rigidBody.velocity = new Vector3(delta.x, rigidBody.velocity.y, delta.z);
         }
     }
 
@@ -129,19 +134,9 @@ public class TigerController : MonoBehaviour {
         return hit.collider == terrainCollider;
     }
 
-
-    private int lastParticlesIndex = 0;
-    private void PlayParticles()
+    private void PlayParticles(string state)
     {
-        if (lastParticlesIndex == particleSystems.Count)
-        {
-            lastParticlesIndex = 0;
-        }
-        if (!particleSystems[lastParticlesIndex].isPlaying)
-        {
-            particleSystems[lastParticlesIndex].Play();
-            particleSystems[lastParticlesIndex++].Emit(1);
-        }
+        particlesController.Emit(1);
     }
 }
 

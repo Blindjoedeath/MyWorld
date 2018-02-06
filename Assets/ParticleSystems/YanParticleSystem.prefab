@@ -63,7 +63,7 @@ ParticleSystem:
   serializedVersion: 5
   lengthInSec: 5
   simulationSpeed: 0.6
-  looping: 0
+  looping: 1
   prewarm: 0
   playOnAwake: 0
   autoRandomSeed: 1
@@ -663,7 +663,7 @@ ParticleSystem:
     randomDirectionAmount: 0
     sphericalDirectionAmount: 0
   EmissionModule:
-    enabled: 1
+    enabled: 0
     serializedVersion: 4
     rateOverTime:
       serializedVersion: 2

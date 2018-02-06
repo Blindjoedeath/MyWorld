@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
-using UnityEditor;
 using System.IO;
+#if UNITY_EDITOR
+using UnityEditor;
 
 public static class ScriptableObjectUtility
 {
@@ -31,3 +32,5 @@ public static class ScriptableObjectUtility
         Selection.activeObject = asset;
     }
 }
+
+#endif
