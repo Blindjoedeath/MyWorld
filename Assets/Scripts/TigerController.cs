@@ -9,7 +9,11 @@ public class TigerController : MonoBehaviour {
 
     [Range(1, 10)]
     public float runSpeed;
+
     public float jumpForce;
+
+    [Range(1,5)]
+    public float scrollWheelSensitivity;
 
     public bool enable;
 
@@ -31,15 +35,15 @@ public class TigerController : MonoBehaviour {
     private Rigidbody rigidBody;
     private Camera playerCamera;
     private Collider collider;
-    private ParticlesController particlesController;
     private Transform environmentBase;
-
-    AnimatorStateInfo animStateInfo;
+    private AnimatorStateInfo animStateInfo;
+    private ObjectPool objectPool;
 
     private float groundDist;
     private bool isGrounded;
 
     public AudioClips audioClips;
+    public GameObject hitObject;
 
     private void Start()
     {
@@ -48,12 +52,13 @@ public class TigerController : MonoBehaviour {
         rigidBody = GetComponent<Rigidbody>();
         playerCamera = GetComponentInChildren<Camera>();
         collider = GetComponent<Collider>();
-        particlesController = GetComponentInChildren<ParticlesController>();
         environmentBase = GameObject.FindGameObjectWithTag("Environment").transform;
         groundDist = collider.bounds.extents.y;
         audioClips.ResetLastClipIndex();
 
-        foreach(var param in parameters)
+        objectPool = new ObjectPool(hitObject, 10, null);
+
+        foreach (var param in parameters)
         {
             paramHash[param] = Animator.StringToHash(param);
         }
@@ -70,12 +75,18 @@ public class TigerController : MonoBehaviour {
         float horAxis = Input.GetAxis("Horizontal");
         float mouseHorAxis = Input.GetAxis("Mouse X");
         float mouseVertAxis = Input.GetAxis("Mouse Y");
+        float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
 
         CheckGround();
 
-        Debug.Log(isGrounded);
-        playerCamera.transform.RotateAround(transform.position, Vector3.up, mouseHorAxis);
+        if (Input.GetButton("Fire2"))
+        {
+            playerCamera.transform.RotateAround(transform.position, playerCamera.transform.right, -mouseVertAxis);
+        }
+        playerCamera.transform.RotateAround(transform.position, transform.up, mouseHorAxis);
 
+
+        playerCamera.transform.position += scrollWheel * playerCamera.transform.forward * scrollWheelSensitivity;
         transform.Rotate(new Vector3(0, horAxis, 0));
 
         animStateInfo = animator.GetCurrentAnimatorStateInfo(0); 
@@ -94,10 +105,10 @@ public class TigerController : MonoBehaviour {
                 PlayClip();
                 animator.SetTrigger(paramHash["Scream"]);
             }
-            else if (Input.GetMouseButtonDown(0))
+            else if (Input.GetButtonDown("Fire1"))
             {
                 animator.SetTrigger(paramHash["Hit"]);
-                PlayParticles("Hit");
+                StartCoroutine(EmitHitObject());
             }
             else if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
             {
@@ -160,9 +171,17 @@ public class TigerController : MonoBehaviour {
         audioSource.Play();
     }
 
-    private void PlayParticles(string state)
+    private IEnumerator EmitHitObject()
     {
-        particlesController.Emit(1);
+        var obj = objectPool.Get();
+        obj.transform.position = transform.position + Vector3.up;
+        obj.transform.rotation = transform.rotation; 
+        obj.SetActive(true);
+        Rigidbody rb = obj.GetComponent<Rigidbody>();
+        rb.AddForce(transform.forward * 300);
+        yield return new WaitForSeconds(2);
+        rb.velocity = Vector3.zero;
+        obj.SetActive(false);
     }
 }
 
