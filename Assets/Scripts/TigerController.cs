@@ -38,7 +38,6 @@ public class TigerController : MonoBehaviour {
 
     private float groundDist;
     private bool isGrounded;
-    private Vector3[] rayOrigins = new Vector3[4];
 
     public AudioClips audioClips;
 
@@ -51,17 +50,7 @@ public class TigerController : MonoBehaviour {
         collider = GetComponent<Collider>();
         particlesController = GetComponentInChildren<ParticlesController>();
         environmentBase = GameObject.FindGameObjectWithTag("Environment").transform;
-
-
         groundDist = collider.bounds.extents.y;
-        var center = collider.bounds.center;
-
-        rayOrigins[0] = new Vector3(center.x - collider.bounds.extents.x, center.y, center.z - collider.bounds.extents.z);
-        rayOrigins[1] = new Vector3(center.x - collider.bounds.extents.x, center.y, center.z + collider.bounds.extents.z);
-        rayOrigins[2] = new Vector3(center.x + collider.bounds.extents.x, center.y, center.z - collider.bounds.extents.z);
-        rayOrigins[3] = new Vector3(center.x + collider.bounds.extents.x, center.y, center.z + collider.bounds.extents.z);
-
-
         audioClips.ResetLastClipIndex();
 
         foreach(var param in parameters)
@@ -81,6 +70,8 @@ public class TigerController : MonoBehaviour {
         float horAxis = Input.GetAxis("Horizontal");
         float mouseHorAxis = Input.GetAxis("Mouse X");
         float mouseVertAxis = Input.GetAxis("Mouse Y");
+
+        CheckGround();
 
         Debug.Log(isGrounded);
         playerCamera.transform.RotateAround(transform.position, Vector3.up, mouseHorAxis);
@@ -128,33 +119,36 @@ public class TigerController : MonoBehaviour {
             rigidBody.velocity = new Vector3(delta.x, rigidBody.velocity.y, delta.z);
         }
     }
-
-    private void OnCollisionEnter(Collision collision)
+    private Color[] colors = new Color[]
     {
-        CheckGround();
-    }
+        Color.red, Color.gray, Color.blue, Color.green
+    };
 
-    private void OnCollisionExit(Collision collision)
+
+    private Vector3[] FindOrigins()
     {
-        CheckGround();
+        Vector3 center = collider.bounds.center;
+        Vector3[] rayOrigins = new Vector3[4];
+        rayOrigins[0] = new Vector3(center.x - collider.bounds.extents.x, center.y, center.z - collider.bounds.extents.z);
+        rayOrigins[1] = new Vector3(center.x - collider.bounds.extents.x, center.y, center.z + collider.bounds.extents.z);
+        rayOrigins[2] = new Vector3(center.x + collider.bounds.extents.x, center.y, center.z - collider.bounds.extents.z);
+        rayOrigins[3] = new Vector3(center.x + collider.bounds.extents.x, center.y, center.z + collider.bounds.extents.z);
+
+        return rayOrigins;
     }
 
     private void CheckGround()
     {
         RaycastHit hit = new RaycastHit();
-        foreach (var point in rayOrigins)
+        Vector3[] rayOrigins = FindOrigins();
+        isGrounded = false;
+        for (int i = 0; i < rayOrigins.Length && !isGrounded; ++i)
         {
-            Physics.Raycast(new Ray(point, -transform.up), out hit, groundDist + 0.1f);
-            if (hit.collider != null)
+            if (isGrounded = Physics.Raycast(new Ray(rayOrigins[i], -transform.up), out hit, groundDist + 0.3f))
             {
-                if (!hit.collider.transform.IsChildOf(environmentBase))
-                {
-                    isGrounded = false;
-                    return;
-                }
+                isGrounded = hit.collider.transform.IsChildOf(environmentBase);
             }
         }
-        isGrounded = true;
     }
 
     private void PlayClip()
