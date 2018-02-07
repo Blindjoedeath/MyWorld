@@ -694,11 +694,6 @@ Transform:
   m_Father: {fileID: 790255284}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &532632499 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 1205486322074358, guid: 17a2790f94a61954da65e5cde8a97f3f,
-    type: 2}
-  m_PrefabInternal: {fileID: 969476427}
 --- !u!1 &583442895
 GameObject:
   m_ObjectHideFlags: 0
@@ -1040,48 +1035,6 @@ MeshCollider:
   m_InflateMesh: 0
   m_SkinWidth: 0.01
   m_Mesh: {fileID: 4300032, guid: 5e39bcc0421099647829e0f7008e40a0, type: 3}
---- !u!1001 &969476427
-Prefab:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 4273637257387660, guid: 17a2790f94a61954da65e5cde8a97f3f, type: 2}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4273637257387660, guid: 17a2790f94a61954da65e5cde8a97f3f, type: 2}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4273637257387660, guid: 17a2790f94a61954da65e5cde8a97f3f, type: 2}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4273637257387660, guid: 17a2790f94a61954da65e5cde8a97f3f, type: 2}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4273637257387660, guid: 17a2790f94a61954da65e5cde8a97f3f, type: 2}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4273637257387660, guid: 17a2790f94a61954da65e5cde8a97f3f, type: 2}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4273637257387660, guid: 17a2790f94a61954da65e5cde8a97f3f, type: 2}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4273637257387660, guid: 17a2790f94a61954da65e5cde8a97f3f, type: 2}
-      propertyPath: m_RootOrder
-      value: 5
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_ParentPrefab: {fileID: 100100000, guid: 17a2790f94a61954da65e5cde8a97f3f, type: 2}
-  m_IsPrefabParent: 0
 --- !u!1 &976688019
 GameObject:
   m_ObjectHideFlags: 0
@@ -1236,10 +1189,11 @@ MonoBehaviour:
   walkSpeed: 1.4
   runSpeed: 6
   jumpForce: 500
+  emitHeight: 0.45
+  emitWaitTime: 0.2
   scrollWheelSensitivity: 3.25
-  enable: 1
   audioClips: {fileID: 11400000, guid: 0b99530a4cc97ce4bad81c3be2d3acd4, type: 2}
-  hitObject: {fileID: 532632499}
+  emitObject: {fileID: 1418478217035718, guid: 17a2790f94a61954da65e5cde8a97f3f, type: 2}
 --- !u!54 &1034087890
 Rigidbody:
   m_ObjectHideFlags: 0

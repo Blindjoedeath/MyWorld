@@ -15,8 +15,6 @@ public class TigerController : MonoBehaviour {
     [Range(1,5)]
     public float scrollWheelSensitivity;
 
-    public bool enable;
-
     private string[] parameters = new string[]
     {
         "Speed", "Shift", "Scream", "Hit", "Jump"
@@ -26,6 +24,9 @@ public class TigerController : MonoBehaviour {
     {
         "Scream", "Hit", "Jump", "Walk", "Run"
     };
+
+    private float emitHeight = 0.45f;
+    private float emitWaitTime = 0.2f;
 
     private Dictionary<string, int> paramHash = new Dictionary<string, int>();
     private Dictionary<string, int> stateHashes = new Dictionary<string, int>();
@@ -43,7 +44,7 @@ public class TigerController : MonoBehaviour {
     private bool isGrounded;
 
     public AudioClips audioClips;
-    public GameObject hitObject;
+    public GameObject emitObject;
 
     private void Start()
     {
@@ -56,7 +57,7 @@ public class TigerController : MonoBehaviour {
         groundDist = collider.bounds.extents.y;
         audioClips.ResetLastClipIndex();
 
-        objectPool = new ObjectPool(hitObject, 10, null);
+        objectPool = new ObjectPool(emitObject, 10, null);
 
         foreach (var param in parameters)
         {
@@ -104,11 +105,11 @@ public class TigerController : MonoBehaviour {
             {
                 PlayClip();
                 animator.SetTrigger(paramHash["Scream"]);
+                StartCoroutine(EmitObject());
             }
             else if (Input.GetButtonDown("Fire1"))
             {
                 animator.SetTrigger(paramHash["Hit"]);
-                StartCoroutine(EmitHitObject());
             }
             else if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
             {
@@ -171,14 +172,16 @@ public class TigerController : MonoBehaviour {
         audioSource.Play();
     }
 
-    private IEnumerator EmitHitObject()
+    private IEnumerator EmitObject()
     {
         var obj = objectPool.Get();
-        obj.transform.position = transform.position + Vector3.up;
-        obj.transform.rotation = transform.rotation; 
+        obj.transform.rotation = transform.rotation;
+        obj.transform.position = transform.position + transform.up * emitHeight;
+        yield return new WaitForSeconds(emitWaitTime);
         obj.SetActive(true);
+
         Rigidbody rb = obj.GetComponent<Rigidbody>();
-        rb.AddForce(transform.forward * 300);
+        rb.AddForce(transform.forward * 100);
         yield return new WaitForSeconds(2);
         rb.velocity = Vector3.zero;
         obj.SetActive(false);
